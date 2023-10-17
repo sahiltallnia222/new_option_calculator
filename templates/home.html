@@ -1,0 +1,479 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div>
+    <h1 class="heading">OPTION PRICE CALCULATOR</h1>
+    <div class="calc-outer-box">
+        <div class="tabs">
+            <button class="btn1" onclick="calToggle('bmod_calculator')">Binomial Model</button>
+            <button class="btn2" onclick="calToggle('crr_calculator')">CRR Model</button>
+            <button class="btn3" onclick="calToggle('bs_calculator')">Black Schole</button>
+        </div>
+        <div class="calculator">
+            <form id="bmod_calculator" method="post" onreset="hideCalcResult('#cal_result')">
+                {% csrf_token %}
+                <div class="form">
+                    <div class="form-div">
+                        {% csrf_token %}
+                        <div class="check-outer">
+                            <div class="check-inner">
+                                <input type="radio" name="option_type" id="call_option" checked>
+                                <label for="call_option">Call Option</label>
+                            </div>
+                            <div class="check-inner">
+                                <input type="radio" name="option_type" id="put_option">
+                                <label for="put_option">Put Option</label>
+                            </div>
+                        </div>
+                        <div class="check-outer">
+                            <div class="check-inner">
+                                <input type="radio" name="interest_type" id="simple-compound" value="s" checked>
+                                <label for="simple-compound">Simple Compound</label>
+                            </div>
+                            <div class="check-inner">
+                                <input type="radio" value="c" name="interest_type" id="continuous_compound">
+                                <label for="continuous_compound">Continuous Compound</label>
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="initialEP">Initial Equity Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="initialEP" value="100" id="initialEP" placeholder="Enter Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="up-factor">Up Factor</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="up-factor" value="1.15" id="up-factor" placeholder="Enter Up factor">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="down-factor">Down Factor</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="down-factor" value="0.87" id="down-factor" placeholder="Enter Down Factor">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="strike_price">Strike Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="strike_price" value="100" id="strike_price" placeholder="Enter Strike Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="risk-free-rate">Risk Free Rate</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="risk-free-rate" value="0.03" id="risk-free-rate" placeholder="Enter Risk Free Rate">
+                            </div>
+                        </div>
+    
+                        <div class="field-outer">
+                            <label for="maturity">Maturity</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="maturity" id="maturity" value="0.25" placeholder="Enter Maturity Period (in years)">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="no_of_periods">No of Periods</label>
+                            <div class="input-field">
+                                <input type="text" name="no_of_periods" id="no_of_periods" value="1" placeholder="Enter No. of Periods">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="d_yield">Dividend Yield</label>
+                            <div class="input-field">
+                                <input type="number" value="0" step="0.0001" name="d_yield" id="d_yield" placeholder="Enter Dividend Yield">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-button-div">
+                        <button class="btn" type="submit">
+                            <i class="fa-sharp fa-solid fa-calculator fa-lg" style="color: #793399;"></i><span
+                                style="margin-left: 0.8rem;">Calculate</span>
+                        </button>
+                        <button type="reset" class="btn">
+                            <i class="fa-solid fa-rotate-right fa-lg" style="color: #793399;"></i>
+                            <span style="margin-left: 0.8rem;">Reset</span>
+                        </button>
+                    </div>
+                    <div class="cal-result" id="cal_result" style="padding-top: 1rem;">
+                        <p style="font-size: 1.2rem;">Calculated Values</p>
+                        <div style="background-color: white;padding: 0.8rem; color: #793399;margin-top: 0.8rem;">
+                            <p id="fairpriceval" style="padding: 0rem 0rem; font-size: 1rem;"></p>
+                        </div>
+    
+                    </div>
+                </div>
+            </form>
+            <form id="crr_calculator" method="post" onreset="hideCalcResult('#crr_cal_result')">
+                {% csrf_token %}
+                <div class="form">
+                    <div class="form-div">
+                        {% csrf_token %}
+                        <div class="check-outer">
+                            <div class="check-inner">
+                                <input type="radio" name="crr_option_type" id="crr_call_option" checked>
+                                <label for="crr_call_option">Call Option</label>
+                            </div>
+                            <div class="check-inner">
+                                <input type="radio" name="crr_option_type" id="crr_put_option">
+                                <label for="crr_put_option">Put Option</label>
+                            </div>
+                        </div>
+                        <div class="check-outer">
+                            <div class="check-inner">
+                                <input type="radio" name="crr_interest_type" id="crr_simple_compound" value="s" checked>
+                                <label for="crr_simple_compound">Simple Compound</label>
+                            </div>
+                            <div class="check-inner">
+                                <input type="radio" value="c" name="crr_interest_type" id="crr_continuous_compound">
+                                <label for="crr_continuous_compound">Continuous Compound</label>
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="initialEPCRR">Initial Equity Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="initialEPCRR" value="100" id="initialEPCRR" placeholder="Enter Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="CRRVolatility">Volatility</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="CRRVolatility" value="0.4" id="CRRVolatility" placeholder="Enter Volatility">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="crr_strike_price">Strike Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="crr_strike_price" value="100" id="crr_strike_price" placeholder="Enter Strike Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="crr-risk-free-rate">Risk Free Rate</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="crr-risk-free-rate" value="0.03" id="crr-risk-free-rate" placeholder="Enter Risk Free Rate">
+                            </div>
+                        </div>
+    
+                        <div class="field-outer">
+                            <label for="crr_maturity">Maturity</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="crr_maturity" id="crr_maturity" value="0.25" placeholder="Enter Maturity Period (in years)">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="crr_no_of_periods">No of Periods</label>
+                            <div class="input-field">
+                                <input type="text" name="crr_no_of_periods" id="crr_no_of_periods" value="1" placeholder="Enter No. of Periods">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="crr_d_yield">Dividend Yield</label>
+                            <div class="input-field">
+                                <input type="number" value="0" step="0.0001" name="crr_d_yield" id="crr_d_yield" placeholder="Enter Dividend Yield">
+                            </div>
+                        </div>
+                   
+                        </div>
+                        <div class="form-button-div">
+                            <button class="btn" type="submit">
+                                <i class="fa-sharp fa-solid fa-calculator fa-lg" style="color: #793399;"></i><span
+                                    style="margin-left: 0.8rem;">Calculate</span>
+                            </button>
+                            <button type="reset" class="btn">
+                                <i class="fa-solid fa-rotate-right fa-lg" style="color: #793399;"></i>
+                                <span style="margin-left: 0.8rem;">Reset</span>
+                            </button>
+                        </div>
+                    <div class="cal-result" id="crr_cal_result" style="padding-top: 1rem;">
+                        <p style="font-size: 1.2rem;">Calculated Values</p>
+                        <div style="background-color: white;padding: 0.8rem; color: #793399;margin-top: 0.8rem;">
+                            <p id="crr_fairpriceval" style="padding: 0rem 0rem; font-size: 1rem;"></p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form id="bs_calculator" method="post" onreset="hideCalcResult('#bs_cal_result')">
+                {% csrf_token %}
+                <div class="form">
+                    <div class="form-div">
+                        {% csrf_token %}
+                        <div class="check-outer">
+                            <div class="check-inner">
+                                <input type="radio" name="bs_option_type" id="bs_call_option" checked>
+                                <label for="bs_call_option">Call Option</label>
+                            </div>
+                            <div class="check-inner">
+                                <input type="radio" name="bs_option_type" id="bs_put_option">
+                                <label for="bs_put_option">Put Option</label>
+                            </div>
+                        </div>
+                        <div class="field-outer"></div>
+                        <div class="field-outer">
+                            <label for="initialEPBS">Initial Equity Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="initialEPBS" value="100" id="initialEPBS" placeholder="Enter Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="bs_strike_price">Strike Price</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="bs_strike_price" value="100" id="bs_strike_price" placeholder="Enter Strike Price">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="bs_risk-free-rate">Risk Free Rate</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="bs_risk-free-rate" value="0.03" id="bs_risk-free-rate" placeholder="Enter Risk Free Rate">
+                            </div>
+                        </div>
+                        
+                        <div class="field-outer">
+                            <label for="BSVolatility">Volatility</label>
+                            <div class="input-field">
+                                <input type="number" step="0.0001" name="BSVolatility" id="BSVolatility" value="0.4" placeholder="Enter Volatility">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="bs_maturity">Maturity</label>
+                            <div class="input-field">
+                                <input type="text" name="bs_maturity" id="bs_maturity" value="0.25" placeholder="Enter The Maturity (in Years)">
+                            </div>
+                        </div>
+                        <div class="field-outer">
+                            <label for="bs_d_yield">Dividend Yield</label>
+                            <div class="input-field">
+                                <input type="number" value="0" step="0.0001" name="bs_d_yield" id="bs_d_yield" placeholder="Enter Dividend Yield">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-button-div">
+                        <button class="btn" type="submit">
+                            <i class="fa-sharp fa-solid fa-calculator fa-lg" style="color: #793399;"></i><span
+                                style="margin-left: 0.8rem;">Calculate</span>
+                        </button>
+                        <button type="reset" class="btn">
+                            <i class="fa-solid fa-rotate-right fa-lg" style="color: #793399;"></i>
+                            <span style="margin-left: 0.8rem;">Reset</span>
+                        </button>
+                    </div>
+                    <div class="cal-result" id="bs_cal_result" style="padding-top: 1rem;">
+                        <p style="font-size: 1.2rem;">Calculated Values</p>
+                        <div style="background-color: white;padding: 0.8rem; color: #793399;margin-top: 0.8rem;">
+                            <p id="bs_fairpriceval" style="padding: 0rem 0rem; font-size: 1rem;"></p>
+                        </div>
+    
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $('#cal_result').hide()
+    $('#crr_cal_result').hide()
+    $('#bs_cal_result').hide()
+    function hideCalcResult(x){
+        $(x).hide()
+    }
+    $('#bmod_calculator').submit(function(e){
+        e.preventDefault();
+        $('#cal_result').hide()
+        calculateBOPMValue();
+    })
+
+    $('#crr_calculator').submit(function(e){
+        e.preventDefault();
+        $('#crr_cal_result').hide()
+        calculateCRRValue();
+    })
+
+    $('#bs_calculator').submit(function(e){
+        e.preventDefault();
+        $('#bs_cal_result').hide()
+        calculateBSValue();
+    })
+
+    function calculateCRRValue(){
+        let val=$('#initialEPCRR').val();
+        console.log(val)
+        let volatility=$('#CRRVolatility').val();
+        console.log(volatility)
+        let strikePrice=$('#crr_strike_price').val();
+        console.log(strikePrice)
+        let riskFreeRate=$('#crr-risk-free-rate').val();
+        console.log(riskFreeRate)
+        let maturity=$('#crr_maturity').val();
+        console.log(maturity)
+        let noOfPeriods=$('#crr_no_of_periods').val();
+        console.log(noOfPeriods)
+        let dYield=$('#crr_d_yield').val();
+        console.log(dYield)
+        let i=$('#crr_continuous_compound');
+        let interest='s';
+        if(i.is(':checked')){
+            interest='c';
+        }
+        console.log(interest)
+        let isPut=false;
+        let pOption=$('#crr_put_option');
+        if(pOption.is(':checked')){
+            isPut=true;
+        }
+        console.log(isPut)
+        // if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
+        //     alert('Enter all parameters');
+        //     return;
+        // }
+        // return;
+        $.ajax({
+            method:'post',
+            url:'/crr-get-price-prob/',
+            data:{val,volatility,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+            },
+            success:function(res){
+                console.log('response is:');
+                let c=res.fairPrice 
+                $('#crr_fairpriceval').text(`Option Price is ${c}`)
+                $('#crr_cal_result').show()
+            },
+            error:function(res){
+                console.log(res)
+            }
+        })
+    }
+
+    function calculateBSValue(){
+        let val=$('#initialEPBS').val();
+        console.log(val)
+        let volatility=$('#BSVolatility').val();
+        console.log(volatility)
+        let strikePrice=$('#bs_strike_price').val();
+        console.log(strikePrice)
+        let riskFreeRate=$('#bs_risk-free-rate').val();
+        console.log(riskFreeRate)
+        let maturity=$('#bs_maturity').val();
+        console.log(maturity)
+        let dYield=$('#bs_d_yield').val();
+        console.log(dYield)
+        let i=$('#bs_continuous_compound');
+        let interest='s';
+        if(i.is(':checked')){
+            interest='c';
+        }
+        console.log(interest)
+        let isPut=false;
+        let pOption=$('#bs_put_option');
+        if(pOption.is(':checked')){
+            isPut=true;
+        }
+        console.log(isPut)
+        // if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
+        //     alert('Enter all parameters');
+        //     return;
+        // }
+        // return;
+        $.ajax({
+            method:'post',
+            url:'/bs-get-price-prob/',
+            data:{val,volatility,strikePrice,riskFreeRate,maturity,dYield,isPut,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+            },
+            success:function(res){
+                console.log('response is:');
+                let c=res.fairPrice 
+                $('#bs_fairpriceval').text(`Option Price is ${c}`)
+                $('#bs_cal_result').show()
+            },
+            error:function(res){
+                console.log(res)
+            }
+        })
+    }
+
+    function calculateBOPMValue(){
+        let val=$('#initialEP').val();
+        let upFactor=$('#up-factor').val();
+        let downFactor=$('#down-factor').val();
+        let strikePrice=$('#strike_price').val();
+        let riskFreeRate=$('#risk-free-rate').val();
+        let maturity=$('#maturity').val();
+        let noOfPeriods=$('#no_of_periods').val();
+        let dYield=$('#d_yield').val();
+        let i=$('#continuous_compound');
+        let interest='s';
+        if(i.is(':checked')){
+            interest='c';
+        }
+        let isPut=false;
+        let pOption=$('#put_option');
+        if(pOption.is(':checked')){
+            isPut=true;
+        }
+        console.log(isPut)
+        if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
+            alert('Enter all parameters');
+            return;
+        }
+        $.ajax({
+            method:'post',
+            url:'/get-price-prob/',
+            data:{val,upFactor,downFactor,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+            },
+            success:function(res){
+                console.log('response is:');
+                let c=res.fairPrice 
+                $('#fairpriceval').text(`Option Price is ${c}`)
+                $('#cal_result').show()
+            },
+            error:function(res){
+                console.log(res)
+            }
+        })
+    }
+
+
+
+
+
+
+    function calToggle(idName){
+        if(idName=='bmod_calculator'){
+            $('#bmod_calculator').fadeIn();
+            $('#crr_calculator').fadeOut();
+            $('#bs_calculator').fadeOut();
+            $('.btn1').css({'background-color':'rebeccapurple','color':'white','transition':'300ms'})
+            $('.btn2').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+            $('.btn3').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+        }
+        if(idName=='crr_calculator'){
+            $('#crr_calculator').fadeIn();
+            $('#bmod_calculator').fadeOut();
+            $('#bs_calculator').fadeOut();
+            $('.btn2').css({'background-color':'rebeccapurple','color':'white','transition':'300ms'})
+            $('.btn1').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+            $('.btn3').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+        }
+        if(idName=='bs_calculator'){
+            $('#bs_calculator').fadeIn();
+            $('#crr_calculator').fadeOut();
+            $('#bmod_calculator').fadeOut();
+            $('.btn3').css({'background-color':'rebeccapurple','color':'white','transition':'300ms'})
+            $('.btn2').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+            $('.btn1').css({'background-color':'#e8e8e8','color':'black','transition':'300ms'})
+        }
+        
+    }
+    calToggle('bmod_calculator')
+
+
+
+
+
+
+</script>
+
+
+{% endblock %}

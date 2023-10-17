@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+body{
+    overflow-x: hidden;
+}
+.heading{
+    /* color: #1f2a44; */
+    color: white;
+    text-align: center;
+    /* background-color: #ededed; */
+    background-color: rebeccapurple;
+    /* font-weight: 400; */
+    font-size: 3rem;
+    padding: 2rem 4rem;
+    /* overflow: hidden; */
+    font-family: 'Lora', serif;
+}
+
+.field-outer{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* justify-content: space-between; */
+    /* align-items: center; */
+    width: 350px;
+    padding: 8px;
+    /* background-color: rebeccapurple; */
+}
+
+.input-field{
+    width: 100%;
+    border: 1px solid rgb(255, 255, 255);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input{
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 0.4rem;
+}
+.check-inner input{
+    width: auto;
+    padding: 0rem;
+}
+
+
+#form-heading{
+    padding: 1.5rem;
+    font-size: 1.8rem;
+    text-align: center; 
+     border-bottom: 2px solid white; 
+     margin-bottom: 1.2rem; 
+}
+#model-option{    
+    border-bottom: 2px solid white; 
+    margin-bottom: 1.5rem;
+}
+
+.form-div{
+    display: grid;
+    /* background-color: #ededed; */
+    justify-content: center;
+    column-gap: 2rem;
+    padding: 1rem;
+    grid-template-columns: auto auto;
+}
+
+.btn{
+    padding: 0.6rem 2.3rem;
+    color: rebeccapurple;
+    font-weight: 600;
+    margin: 0.5rem;
+}
+
+.form-button-div{
+    /* margin-top: 1.5rem; */
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    
+}
+
+.check-outer{
+    /* background-color: red; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.check-inner{
+    display: flex;
+    gap: 1rem;
+    padding: 8px;
+}
+
+.cal-result{
+    padding: 1.5rem;
+}
+
+.tabs{
+    /* background-color: red; */
+    display: flex;
+    margin-bottom: 0.4rem;
+    /* padding: 1rem; */
+}
+.tabs button{
+    float: left;
+    flex: 1;
+    padding: 16px 16px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background-color: #e8e8e8;
+}
+/* .tabs .btn3{
+    background-color: rebeccapurple;
+    color: white;
+} */
+.calc-outer-box{
+    display: flex;
+    flex-direction: column;
+}
+
+.calculator{
+    height: 400px;
+    margin-top: 1.8rem;
+    position: relative;
+}
+#crr_calculator{
+    color: white;
+    background-color: rebeccapurple;
+    position: absolute;
+    display: block;
+    transform: translateX(-50%);
+    margin-left: 50%;
+}
+#bs_calculator{
+    color: white;
+    background-color: rebeccapurple;
+    display: block;
+    position: absolute;
+    transform: translateX(-50%);
+    margin-left: 50%;
+}
+#bmod_calculator{
+    color: white;
+    background-color: rebeccapurple;
+    display: block;
+    position: absolute;
+    transform: translateX(-50%);
+    margin-left: 50%;
+    /* margin-top: 2rem; */
+    /* margin-bottom: 3rem; */
+    /* padding: 1rem; */
+    /* overflow: hidden; */
+}
