@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'webapp.urls'
@@ -69,7 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'webapp.wsgi.application'
-
+CSRF_TRUSTED_ORIGINS=['https://option-calculator.azurewebsites.net']
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
