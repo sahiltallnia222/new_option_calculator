@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 import math
+import yfinance as yf
 from django.http import JsonResponse 
 from pandas_datareader import data, wb
 import matplotlib.pyplot as plt
@@ -11,79 +12,6 @@ def nCr(n,r):
     f = math.factorial
     return f(n) / f(r) / f(n-r)
  
-# class BinomialModel(object): 
-#     def __init__(self, s0, u, d, strike, maturity, rfr,  n, compd = "s", dyield = None):
-#         self.s0 = s0
-#         self.u = u
-#         self.d = d
-#         self.rfr = rfr
-#         self.maturity = maturity 
-#         self.strike = strike
-#         self.n = n
-#         self.compd = compd
-#         self.dyield = dyield
-    
-#     def call_price(self):
-#         delta = float(self.maturity)/float(self.n)
-        
-#         if self.compd == "c":
-#             if self.dyield ==None: 
-#                 q = (math.exp(self.rfr*delta) - self.d) / (self.u - self.d)
-#             else:
-#                 q = (math.exp((self.rfr-self.dyield)*delta) - self.d) / (self.u - self.d)
-#         if self.compd == "s":
-#             if self.dyield == None: 
-#                 q = (1 + self.rfr*delta - self.d) / (self.u - self.d)
-#             else:
-#                 q = (1+ (self.rfr - self.dyield)*delta - self.d) / (self.u - self.d)
-        
-#         prc = 0
-#         temp_stock = 0
-#         temp_payout = 0
-#         for x in range(0, self.n + 1):
-#             temp_stock = self.s0*((self.u)**(x))*((self.d)**(self.n - x))
-#             temp_payout = max(temp_stock - self.strike, 0)
-#             prc += nCr(self.n, x)*(q**(x))*((1-q)**(self.n - x))*temp_payout
-        
-#         if self.compd == "s":
-#             prc = prc / ((1+ self.rfr*delta )**self.n)
-#         if self.compd == "c":
-#             prc = prc / math.exp(self.rfr*delta)
-        
-        
-#         return prc
-    
-    
-#     def put_price(self):
-#         delta = float(self.maturity)/float(self.n)
-        
-#         if self.compd == "c":
-#             if self.dyield ==None: 
-#                 q = (math.exp(self.rfr*delta) - self.d) / (self.u - self.d)
-#             else:
-#                 q = (math.exp((self.rfr-self.dyield)*delta) - self.d) / (self.u - self.d)
-#         if self.compd == "s":
-#             if self.dyield == None: 
-#                 q = (1 + self.rfr*delta - self.d) / (self.u - self.d)
-#             else:
-#                 q = (1+ (self.rfr - self.dyield)*delta - self.d) / (self.u - self.d)
-        
-#         prc = 0
-#         temp_stock = 0
-#         temp_payout = 0
-#         for x in range(0, self.n + 1):
-#             temp_stock = self.s0*((self.u)**(x))*((self.d)**(self.n - x))
-#             temp_payout = max(self.strike - temp_stock, 0)
-#             prc += nCr(self.n, x)*(q**(x))*((1-q)**(self.n - x))*temp_payout
-        
-#         if self.compd == "s":
-#             prc = prc / ((1+ self.rfr*delta )**self.n)
-#         if self.compd == "c":
-#             prc = prc / math.exp(self.rfr*delta)
-        
-        
-#         return prc
-
 def BinomialModel(PutCall, n, S0, X, rfr, u, d, t, AMNEUR, compd='s', dyield=None):
     deltaT = t / n
     if compd == "c":
@@ -136,85 +64,16 @@ def BinomialModel(PutCall, n, S0, X, rfr, u, d, t, AMNEUR, compd='s', dyield=Non
     
     return opt_price
 
-# class CRRModel(object):
-#     def __init__(self, s0, sigma, strike, maturity, rfr,  n, compd = "s", dyield = None):      
-#         self.s0 = s0 
-#         self.sigma = sigma
-#         self.rfr = rfr
-#         self.maturity = maturity 
-#         self.strike = strike
-#         self.n = n
-#         self.compd = compd
-#         self.dyield = dyield
+
+
+def CRRModel(PutCall, n, S0, X, rfr, vol, t,compSymBol, AMNEUR, dyield=None, cmpd="s"):
+    print(AMNEUR)
+    stock_data = yf.Ticker(compSymBol)
+    data = stock_data.history()
+    close_prices = data['Close']
+    daily_returns = close_prices.pct_change().dropna()
+    vol = daily_returns.std()*np.sqrt(252)
     
-#     def call_price(self):
-#         delta = float(self.maturity)/float(self.n)
-#         u = math.exp(self.sigma*math.sqrt(delta))
-#         d = 1/math.exp(self.sigma*math.sqrt(delta))
-
-
-#         if self.compd == "c":
-#             if self.dyield ==None: 
-#                 q = (math.exp(self.rfr*delta) - d) / (u - d)
-#             else:
-#                 q = (math.exp((self.rfr-self.dyield)*delta) - d) / (u - d)
-#         if self.compd == "s":
-#             if self.dyield == None: 
-#                 q = (1 + self.rfr*delta - d) / (u - d)
-#             else:
-#                 q = (1+ (self.rfr - self.dyield)*delta - d) / (u - d)
-        
-#         prc = 0
-#         temp_stock = 0
-#         temp_payout = 0
-#         for x in range(0, self.n + 1):
-#             temp_stock = self.s0*((u)**(x))*((d)**(self.n - x))
-#             temp_payout = max(temp_stock - self.strike, 0)
-#             prc += nCr(self.n, x)*(q**(x))*((1-q)**(self.n - x))*temp_payout
-        
-#         if self.compd == "s":
-#             prc = prc / ((1+ self.rfr*delta )**self.n)
-#         if self.compd == "c":
-#             prc = prc / math.exp(self.rfr*delta)
-        
-        
-#         return prc
-    
-    
-#     def put_price(self):
-#         delta = float(self.maturity)/float(self.n)
-#         u = math.exp(self.sigma*math.sqrt(delta))
-#         d= 1/math.exp(self.sigma*math.sqrt(delta))
-
-
-#         if self.compd == "c":
-#             if self.dyield ==None: 
-#                 q = (math.exp(self.rfr*delta) - d) / (u - d)
-#             else:
-#                 q = (math.exp((self.rfr-self.dyield)*delta) - d) / (u - d)
-#         if self.compd == "s":
-#             if self.dyield == None: 
-#                 q = (1 + self.rfr*delta - d) / (u - d)
-#             else:
-#                 q = (1+ (self.rfr - self.dyield)*delta - d) / (u - d)
-        
-#         prc = 0
-#         temp_stock = 0
-#         temp_payout = 0
-#         for x in range(0, self.n + 1):
-#             temp_stock = self.s0*((u)**(x))*((d)**(self.n - x))
-#             temp_payout = max(self.strike - temp_stock, 0)
-#             prc += nCr(self.n, x)*(q**(x))*((1-q)**(self.n - x))*temp_payout
-        
-#         if self.compd == "s":
-#             prc = prc / ((1+ self.rfr*delta )**self.n)
-#         if self.compd == "c":
-#             prc = prc / math.exp(self.rfr*delta)
-        
-        
-#         return prc  
-
-def CRRModel(PutCall, n, S0, X, rfr, vol, t, AMNEUR, dyield=None, cmpd="s"):
     deltaT = t / n
     u = np.exp(vol * np.sqrt(deltaT))
     d = 1.0 / u
@@ -270,54 +129,17 @@ def CRRModel(PutCall, n, S0, X, rfr, vol, t, AMNEUR, dyield=None, cmpd="s"):
     
     return opt_price
 
-# class BlackScholeModel(object):
-#     def __init__(self, S, K, T, r, sigma, q=0,):
-#         self.S = S
-#         self.K = K
-#         self.T = T
-#         self.r = r
-#         self.sigma = sigma
-#         self.q = q
-    
-#     @staticmethod
-#     def N(x):
-#         return norm.cdf(x)
-    
-#     @property
-#     def params(self):
-#         return {'S': self.S, 
-#                 'K': self.K, 
-#                 'T': self.T, 
-#                 'r': self.r,
-#                 'q': self.q,
-#                 'sigma': self.sigma}
-    
-#     def d1(self):
-#         return (np.log(self.S / self.K) + (self.r - self.q + self.sigma**2 / 2) * self.T) \
-#                                 / (self.sigma * np.sqrt(self.T))
-    
-#     def d2(self):
-#         return self.d1() - self.sigma * np.sqrt(self.T)
-    
-#     def call_value(self):
-#         return self.S * np.exp(-self.q * self.T) * self.N(self.d1()) - \
-#                     self.K * np.exp(-self.r * self.T) * self.N(self.d2())
-                    
-#     def put_value(self):
-#         return self.K * np.exp(-self.r * self.T) * self.N(-self.d2()) - \
-#                 self.S * np.exp(-self.q * self.T) * self.N(-self.d1())
-    
-#     # def price(self, type_='C'):
-#     #     if type_ == 'C':
-#     #         return self._call_value()
-#     #     if type_ == 'P':
-#     #         return self._put_value() 
-#     #     if type_ == 'B':
-#     #         return {'call': self._call_value(), 'put': self._put_value()}
-#     #     else:
-#     #         raise ValueError('Unrecognized type')
-
-def BlackScholeModel(PutCall, S0, X, rfr, vol, t):
+def BlackScholeModel(PutCall, S0, X, rfr, vol, t,cSymbol):
+    # ticker = "GOOG"  # Replace with the desired stock symbol
+    # start_date = "2021-01-01"
+    # end_date = "2021-12-31"
+    # print(cSymbol)
+    stock_data = yf.Ticker(cSymbol)
+    data = stock_data.history()
+    close_prices = data['Close']
+    daily_returns = close_prices.pct_change().dropna()
+    vol = daily_returns.std()*np.sqrt(252)
+    # print(vol)                                                                                              
     d1 = (np.log(S0 / X) + (rfr + vol ** 2 / 2) * t) / (vol * np.sqrt(t))
     d2 = d1 - vol * np.sqrt(t)
     
@@ -337,12 +159,13 @@ def getPriceAndProbBS(request):
         maturity=float(request.POST.get('maturity'))
         dYield=float(request.POST.get('dYield'))
         isPut=request.POST.get('isPut')  
-
+        cSymbol=request.POST.get('cSymbol')
+        # print(cSymbol)
         if isPut=='true':
-            fairPrice=BlackScholeModel('P',initialEP,strikePrice,riskFreeRate,Volatility,maturity)  
+            fairPrice=BlackScholeModel('P',initialEP,strikePrice,riskFreeRate,Volatility,maturity,cSymbol)  
             return JsonResponse({'fairPrice':round(fairPrice,2)})
         else:
-            callFairPrice=BlackScholeModel('C',initialEP,strikePrice,riskFreeRate,Volatility,maturity) 
+            callFairPrice=BlackScholeModel('C',initialEP,strikePrice,riskFreeRate,Volatility,maturity,cSymbol) 
             return JsonResponse({'fairPrice':round(callFairPrice,2)})
 
 def getPriceAndProb(request):
@@ -357,12 +180,12 @@ def getPriceAndProb(request):
         dYield=float(request.POST.get('dYield'))
         com=(request.POST.get('interest'))
         isPut=request.POST.get('isPut') 
-
+        selectedVal=request.POST.get('selectedVal')
         if isPut=='true':            
-            fairPrice=BinomialModel('P',noOfPeriods,initialEP,strikePrice,riskFreeRate,upFactor,downFactor,maturity,'E',com,dYield)
+            fairPrice=BinomialModel('P',noOfPeriods,initialEP,strikePrice,riskFreeRate,upFactor,downFactor,maturity,selectedVal,com,dYield)
             return JsonResponse({'fairPrice':round(fairPrice,2)})
         else:
-            callFairPrice=BinomialModel('C',noOfPeriods,initialEP,strikePrice,riskFreeRate,upFactor,downFactor,maturity,'E',com,dYield)
+            callFairPrice=BinomialModel('C',noOfPeriods,initialEP,strikePrice,riskFreeRate,upFactor,downFactor,maturity,selectedVal,com,dYield)
             return JsonResponse({'fairPrice':round(callFairPrice,2)})
 
 def getPriceAndProbCRR(request):
@@ -376,12 +199,13 @@ def getPriceAndProbCRR(request):
         dYield=float(request.POST.get('dYield'))
         com=(request.POST.get('interest'))
         isPut=request.POST.get('isPut')
-       
+        compSymBol=request.POST.get('compSymBolCRR')
+        selectedValCRR=request.POST.get('selectedValCRR')
         if isPut=='true':
-            fairPrice=CRRModel('P',noOfPeriods,initialEP,strikePrice,riskFreeRate,Volatility,maturity,'E',dYield,com)
+            fairPrice=CRRModel('P',noOfPeriods,initialEP,strikePrice,riskFreeRate,Volatility,maturity,compSymBol,selectedValCRR,dYield,com)
             return JsonResponse({'fairPrice':round(fairPrice,2)})
         else:
-            callFairPrice=CRRModel('C',noOfPeriods,initialEP,strikePrice,riskFreeRate,Volatility,maturity,'E',dYield,com)
+            callFairPrice=CRRModel('C',noOfPeriods,initialEP,strikePrice,riskFreeRate,Volatility,maturity,compSymBol,selectedValCRR,dYield,com)
             return JsonResponse({'fairPrice':round(callFairPrice,2)})
 
 def home(req):

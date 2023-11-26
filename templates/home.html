@@ -15,7 +15,7 @@
                 {% csrf_token %}
                 <div class="form">
                     <div class="form-div">
-                        {% csrf_token %}
+                        {% csrf_token %}                        
                         <div class="check-outer">
                             <div class="check-inner">
                                 <input type="radio" name="option_type" id="call_option" checked>
@@ -35,6 +35,13 @@
                                 <input type="radio" value="c" name="interest_type" id="continuous_compound">
                                 <label for="continuous_compound">Continuous Compound</label>
                             </div>
+                        </div>
+                        <div class="select-outer">
+                            <p class="select-title">Type of option exercise</p>
+                            <select class="select_div select-div" name="" id="">
+                                <option value="A">American</option>
+                                <option value="E">European</option>
+                            </select>
                         </div>
                         <div class="field-outer">
                             <label for="initialEP">Initial Equity Price</label>
@@ -130,18 +137,31 @@
                                 <label for="crr_continuous_compound">Continuous Compound</label>
                             </div>
                         </div>
+                        <div class="select-outer">
+                            <p class="select-title">Type of option exercise</p>
+                            <select class="select_div_crr select-div" name="" id="">
+                                <option value="A">American</option>
+                                <option value="E">European</option>
+                            </select>
+                        </div>
+                        <div class="field-outer">
+                            <label for="compSymBolCRR">Company Symbol</label>
+                            <div class="input-field">
+                                <input type="text" name="compSymBolCRR" id="compSymBolCRR" placeholder="Enter Company Symbol">
+                            </div>
+                        </div>
                         <div class="field-outer">
                             <label for="initialEPCRR">Initial Equity Price</label>
                             <div class="input-field">
                                 <input type="number" step="0.0001" name="initialEPCRR" value="100" id="initialEPCRR" placeholder="Enter Price">
                             </div>
                         </div>
-                        <div class="field-outer">
+                        <!-- <div class="field-outer">
                             <label for="CRRVolatility">Volatility</label>
                             <div class="input-field">
                                 <input type="number" step="0.0001" name="CRRVolatility" value="0.4" id="CRRVolatility" placeholder="Enter Volatility">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="field-outer">
                             <label for="crr_strike_price">Strike Price</label>
                             <div class="input-field">
@@ -210,6 +230,12 @@
                         </div>
                         <div class="field-outer"></div>
                         <div class="field-outer">
+                            <label for="compSymBol">Company Symbol</label>
+                            <div class="input-field">
+                                <input type="text" name="compSymBol" id="compSymBol" placeholder="Enter Company Symbol">
+                            </div>
+                        </div>
+                        <div class="field-outer">
                             <label for="initialEPBS">Initial Equity Price</label>
                             <div class="input-field">
                                 <input type="number" step="0.0001" name="initialEPBS" value="100" id="initialEPBS" placeholder="Enter Price">
@@ -228,12 +254,12 @@
                             </div>
                         </div>
                         
-                        <div class="field-outer">
+                        <!-- <div class="field-outer" style="display: hidden;">
                             <label for="BSVolatility">Volatility</label>
                             <div class="input-field">
                                 <input type="number" step="0.0001" name="BSVolatility" id="BSVolatility" value="0.4" placeholder="Enter Volatility">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="field-outer">
                             <label for="bs_maturity">Maturity</label>
                             <div class="input-field">
@@ -294,42 +320,41 @@
         calculateBSValue();
     })
 
+    let selectedValCRR='A';
+    $("select.select_div_crr").change(function(){
+        selectedValCRR = $(this).children("option:selected").val();
+    });
+
+
     function calculateCRRValue(){
         let val=$('#initialEPCRR').val();
-        console.log(val)
-        let volatility=$('#CRRVolatility').val();
-        console.log(volatility)
+        // let volatility=$('#CRRVolatility').val();
+        let volatility=0;
         let strikePrice=$('#crr_strike_price').val();
-        console.log(strikePrice)
         let riskFreeRate=$('#crr-risk-free-rate').val();
-        console.log(riskFreeRate)
         let maturity=$('#crr_maturity').val();
-        console.log(maturity)
         let noOfPeriods=$('#crr_no_of_periods').val();
-        console.log(noOfPeriods)
         let dYield=$('#crr_d_yield').val();
-        console.log(dYield)
         let i=$('#crr_continuous_compound');
+        let compSymBolCRR=$('#compSymBolCRR').val();
         let interest='s';
         if(i.is(':checked')){
             interest='c';
         }
-        console.log(interest)
+        
         let isPut=false;
         let pOption=$('#crr_put_option');
         if(pOption.is(':checked')){
             isPut=true;
         }
-        console.log(isPut)
-        // if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
-        //     alert('Enter all parameters');
-        //     return;
-        // }
-        // return;
+        
+
+
+
         $.ajax({
             method:'post',
             url:'/crr-get-price-prob/',
-            data:{val,volatility,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,
+            data:{val,volatility,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,compSymBolCRR,selectedValCRR,
                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
             },
             success:function(res){
@@ -346,29 +371,24 @@
 
     function calculateBSValue(){
         let val=$('#initialEPBS').val();
-        console.log(val)
-        let volatility=$('#BSVolatility').val();
-        console.log(volatility)
+        // let volatility=$('#BSVolatility').val();
+        let volatility=0;
         let strikePrice=$('#bs_strike_price').val();
-        console.log(strikePrice)
         let riskFreeRate=$('#bs_risk-free-rate').val();
-        console.log(riskFreeRate)
         let maturity=$('#bs_maturity').val();
-        console.log(maturity)
         let dYield=$('#bs_d_yield').val();
-        console.log(dYield)
+        let cSymbol=$('#compSymBol').val();
         let i=$('#bs_continuous_compound');
         let interest='s';
         if(i.is(':checked')){
             interest='c';
         }
-        console.log(interest)
+        // console.log(cSymbol)
         let isPut=false;
         let pOption=$('#bs_put_option');
         if(pOption.is(':checked')){
             isPut=true;
         }
-        console.log(isPut)
         // if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
         //     alert('Enter all parameters');
         //     return;
@@ -377,7 +397,7 @@
         $.ajax({
             method:'post',
             url:'/bs-get-price-prob/',
-            data:{val,volatility,strikePrice,riskFreeRate,maturity,dYield,isPut,
+            data:{val,volatility,strikePrice,riskFreeRate,maturity,dYield,isPut,cSymbol,
                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
             },
             success:function(res){
@@ -391,6 +411,12 @@
             }
         })
     }
+
+
+    let selectedVal='A';
+    $("select.select_div").change(function(){
+        selectedVal = $(this).children("option:selected").val();
+    });
 
     function calculateBOPMValue(){
         let val=$('#initialEP').val();
@@ -411,7 +437,7 @@
         if(pOption.is(':checked')){
             isPut=true;
         }
-        console.log(isPut)
+
         if(!val || !upFactor || !downFactor || !strikePrice || !riskFreeRate || !maturity || !noOfPeriods || !dYield){
             alert('Enter all parameters');
             return;
@@ -419,7 +445,7 @@
         $.ajax({
             method:'post',
             url:'/get-price-prob/',
-            data:{val,upFactor,downFactor,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,
+            data:{val,upFactor,downFactor,strikePrice,riskFreeRate,maturity,noOfPeriods,dYield,interest,isPut,selectedVal,
                 csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
             },
             success:function(res){

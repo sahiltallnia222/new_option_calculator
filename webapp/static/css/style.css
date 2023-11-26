@@ -164,3 +164,21 @@ input{
     /* padding: 1rem; */
     /* overflow: hidden; */
 }
+
+.select-outer{
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    padding: 0.6rem;
+    flex-direction: column;
+}
+
+.select-title{
+    margin-bottom: 0.6rem;
+}
+
+.select-div{
+    width: 100%;
+    padding: 8px 16px;
+    outline: none;
+}
