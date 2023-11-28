@@ -6,7 +6,8 @@ from pandas_datareader import data, wb
 import matplotlib.pyplot as plt
 import pandas_datareader as pdr
 from scipy.stats import norm
-import numpy as np    
+import numpy as np
+import matplotlib.pyplot as plt  
 
 def nCr(n,r):
     f = math.factorial
@@ -207,6 +208,88 @@ def getPriceAndProbCRR(request):
         else:
             callFairPrice=CRRModel('C',noOfPeriods,initialEP,strikePrice,riskFreeRate,Volatility,maturity,compSymBol,selectedValCRR,dYield,com)
             return JsonResponse({'fairPrice':round(callFairPrice,2)})
+
+
+
+def OptionBySimulations(S, K, r, v, T,isPut):
+    sim = 5000
+    dt = T/sim
+    tt = np.arange(0, T, dt)
+    discounted_payoff = []
+    for i in range(sim):
+        db = np.random.normal(0,1,sim)*np.sqrt(dt)
+        b_T = np.cumsum(db)
+        s_T = S*np.exp((r-0.5*v**2)*tt + v*b_T)
+        if(isPut=='true'):
+          discounted_payoff.append(np.exp(-r*T)*(max(K-s_T[-1],0)))
+        else:
+          discounted_payoff.append(np.exp(-r*T)*(max(s_T[-1]-K,0)))
+    return round(np.mean(discounted_payoff), 5 )
+
+
+def bmpaths(N = 1000, paths =5):
+    for i in range(paths):
+            rng = np.arange(0,1, 1.0/N)
+            rvs = np.random.normal(0,1,N)
+            incr = list(map(lambda x: x*math.sqrt(1.0/N), rvs))
+            incr.insert(0,0.0)
+            rng = list(rng)
+            rng.append(1.0)
+            ar = np.array(incr)
+            cms = ar.cumsum()
+            ff = plt.plot(np.array(rng), cms)
+    ub = list(map(lambda x: 3*math.sqrt(x), rng))
+    lb = list(map(lambda x: -3*math.sqrt(x), rng))
+    plt.plot(np.array(rng), ub)
+    plt.plot(np.array(rng), lb)
+    plt.xlabel('t')
+    plt.ylabel('B(t)')
+    plt.title('Standard Brownian Motion Sample Paths')
+    plt.show(ff)
+
+def gbmPaths(mu = 1, sigma=.2, S0 = 10, T =1, paths =5):
+    for i in range(paths):
+            dt = 0.01
+            N = int(round(T/dt))
+            t = np.linspace(0, T, N)
+            W = np.random.normal(0,1, N)
+            W = np.cumsum(W)*np.sqrt(dt) ### standard brownian motion ###
+            X = (mu-0.5*sigma**2)*t + sigma*W
+            S = S0*np.exp(X) ### geometric brownian motion ###
+            plt.plot(t, S)
+    plt.xlabel('t')
+    plt.ylabel('X(t)')
+    title = 'GBM Paths With Parameters mu = %.2f, sigma = %.2f and S0 = %.2f' %(mu, sigma, S0)
+    plt.title(title)
+    plt.show()
+
+
+def getPriceAndProbMC(request):
+    if request.method=='POST':
+        initialEP=float(request.POST.get('val'))
+        Volatility=float(request.POST.get('volatility')) 
+        strikePrice=float(request.POST.get('strikePrice'))
+        riskFreeRate=float(request.POST.get('riskFreeRate'))
+        maturity=float(request.POST.get('maturity'))
+        dYield=float(request.POST.get('dYield'))
+        isPut=request.POST.get('isPut')  
+        cSymbol=request.POST.get('cSymbol')
+        Volatility=0.19
+        stock_data = yf.Ticker(cSymbol)
+        data = stock_data.history()
+        close_prices = data['Close']
+        daily_returns = close_prices.pct_change().dropna()
+        Volatility = daily_returns.std()*np.sqrt(252)
+        gbmPaths(mu=riskFreeRate,sigma=Volatility,S0=initialEP,T=maturity,paths=5)
+        print(isPut)
+        if isPut=='true':
+            fairPrice=OptionBySimulations(initialEP,strikePrice,riskFreeRate,Volatility,maturity,isPut) 
+            return JsonResponse({'fairPrice':round(fairPrice,2)})
+        else:
+            callFairPrice=OptionBySimulations(initialEP,strikePrice,riskFreeRate,Volatility,maturity,isPut) 
+            return JsonResponse({'fairPrice':round(callFairPrice,2)})
+
+
 
 def home(req):
     return render(req,'home.html',{})

@@ -23,5 +23,6 @@ urlpatterns = [
     path('',views.home),
     path('get-price-prob/',views.getPriceAndProb),
     path('crr-get-price-prob/',views.getPriceAndProbCRR),
-    path('bs-get-price-prob/',views.getPriceAndProbBS)
+    path('bs-get-price-prob/',views.getPriceAndProbBS),
+    path('mc-get-price-prob/',views.getPriceAndProbMC)
 ]

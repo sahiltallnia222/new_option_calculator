@@ -144,7 +144,7 @@ input{
     transform: translateX(-50%);
     margin-left: 50%;
 }
-#bs_calculator{
+#bs_calculator,#mc_calculator{
     color: white;
     background-color: rebeccapurple;
     display: block;
